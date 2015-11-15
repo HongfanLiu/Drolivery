@@ -30,6 +30,14 @@ from random import randint
 
 ################################################################
 
+# Global variables
+touchRange = ([], [])
+score = 0
+
+# Static variables
+droneSize = 48
+deliverySize = 16
+
 # Initialize world
 name = "Drolivery - Fast & Accurate Drone Delivery"
 width = 1024
@@ -60,6 +68,8 @@ def updateDisplay(state):
 #
 # state -> state
 def updateState(state):
+    global score
+    score += 1
     return((state[0] + state[1], state[1], state[2] + state[3], state[3]))
 
 ################################################################
@@ -68,13 +78,28 @@ def updateState(state):
 # that is, when pos is less then zero or greater than the screen width
 # state -> bool
 def endState(state):
-    '''
-    if (state[0] > (width-100) or state[2] > (height-100) or state[0] < 0 or state[2] < 0):
-        return True
-    else:
-        return False
-    '''
+    return (end(state))
 
+
+def end(state):
+    return touching(state) or state[0] > (width - droneSize) or state[2] > (height - droneSize) or state[0] < 0 or state[2] < 0
+
+
+def touching(state):
+    for i in droneBoundaries(state[0]):
+        if (i in touchRange[0]):
+            for j in droneBoundaries(state[2]):
+                if (j in touchRange[1]):
+                    return True
+
+    return False
+
+def droneBoundaries(axis):
+    b = []
+    for i in range(axis, axis + droneSize):
+        b.append(i)
+
+    return b
 
 ################################################################
 
@@ -90,7 +115,6 @@ def endState(state):
 # state -> event -> state
 #
 def handleEvent(state, event):
-    #print("Handling event: " + str(event))
     if (event.type == pg.MOUSEBUTTONDOWN):
         newState = [randomSpeed(), randomSpeed()]
         return((state[0], newState[0], state[2], newState[1]))
@@ -98,7 +122,7 @@ def handleEvent(state, event):
         return(state)
 
 def randomSpeed():
-    r = randint(-5,5)
+    r = randint(-7,7)
     if (r == 0):
         r = randomSpeed()
 
@@ -108,12 +132,19 @@ def randomAxys(min, max):
     return randint(min, max)
 ################################################################
 
-# World state will be single x coordinate at left edge of world
-
 # The cat starts at the left, moving right
-initState = (0, 1, randomAxys(0, (height-1)), 1)
-deliveryInitState = (randomAxys(984, 1010), randomAxys(17, 682))
+#initState = (80, 1, 80, 1)
+initState = (0, 3, randomAxys(0, (height-1)), 2)
+deliveryInitState = (100, 100)
+#deliveryInitState = (randomAxys(984, 1010), randomAxys(17, 682))
 
+for i in range(deliveryInitState[0], deliveryInitState[0] + deliverySize):
+    touchRange[0].append(i)
+
+for i in range(deliveryInitState[1], deliveryInitState[1] + deliverySize):
+    touchRange[1].append(i)
+
+print(touchRange)
 # Run the simulation no faster than 60 frames per second
 frameRate = 60
 
