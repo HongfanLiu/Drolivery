@@ -31,24 +31,25 @@ from random import randint
 ################################################################
 
 # Initialize world
-name = "Cat Fun. Press the mouse (but not too fast)!"
-width = 500
-height = 500
+name = "Drolivery - Fast & Accurate Drone Delivery"
+width = 1024
+height = 700
 rw.newDisplay(width, height, name)
 
 ################################################################
 
 # Display the state by drawing a cat at that x coordinate
-myimage = dw.loadImage("cat.bmp")
+droneImage = dw.loadImage("drone.png")
+deliveryImage = dw.loadImage("delivery.png")
 
 # state -> image (IO)
 # draw the cat halfway up the screen (height/2) and at the x
 # coordinate given by the first component of the state tuple
 #
 def updateDisplay(state):
-    dw.fill(dw.black)
-    dw.draw(myimage, (state[0], state[2]))
-
+    dw.fill(dw.white)
+    dw.draw(droneImage, (state[0], state[2]))
+    dw.draw(deliveryImage, (deliveryInitState[0], deliveryInitState[1]))
 
 ################################################################
 
@@ -67,10 +68,12 @@ def updateState(state):
 # that is, when pos is less then zero or greater than the screen width
 # state -> bool
 def endState(state):
+    '''
     if (state[0] > (width-100) or state[2] > (height-100) or state[0] < 0 or state[2] < 0):
         return True
     else:
         return False
+    '''
 
 
 ################################################################
@@ -109,10 +112,10 @@ def randomAxys(min, max):
 
 # The cat starts at the left, moving right
 initState = (0, 1, randomAxys(0, (height-1)), 1)
+deliveryInitState = (randomAxys(984, 1010), randomAxys(17, 682))
 
 # Run the simulation no faster than 60 frames per second
 frameRate = 60
 
 # Run the simulation!
-rw.runWorld(initState, updateDisplay, updateState, handleEvent,
-            endState, frameRate)
+rw.runWorld(initState, updateDisplay, updateState, handleEvent, endState, frameRate)
