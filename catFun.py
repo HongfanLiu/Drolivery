@@ -33,6 +33,7 @@ from random import randint
 # Global variables
 touchRange = ([], [])
 score = 0
+scoreText = ""
 
 # Static variables
 droneSize = 48
@@ -43,6 +44,9 @@ name = "Drolivery - Fast & Accurate Drone Delivery"
 width = 1024
 height = 700
 rw.newDisplay(width, height, name)
+
+# initialize font; must be called after 'pygame.init()' to avoid 'Font not Initialized' error
+font = pg.font.Font(None, 35)
 
 ################################################################
 
@@ -58,6 +62,13 @@ def updateDisplay(state):
     dw.fill(dw.white)
     dw.draw(droneImage, (state[0], state[2]))
     dw.draw(deliveryImage, (deliveryInitState[0], deliveryInitState[1]))
+
+     # render text
+    global scoreText
+    scoreText = font.render("Score: " + str(score), 1, (0, 0, 0))
+
+
+    dw.draw(scoreText, (width / 2, 5))
 
 ################################################################
 
@@ -135,8 +146,8 @@ def randomAxys(min, max):
 # The cat starts at the left, moving right
 #initState = (80, 1, 80, 1)
 initState = (0, 3, randomAxys(0, (height-1)), 2)
-deliveryInitState = (100, 100)
-#deliveryInitState = (randomAxys(984, 1010), randomAxys(17, 682))
+#deliveryInitState = (100, 100)
+deliveryInitState = (randomAxys(984, 1010), randomAxys(17, 682))
 
 for i in range(deliveryInitState[0], deliveryInitState[0] + deliverySize):
     touchRange[0].append(i)
