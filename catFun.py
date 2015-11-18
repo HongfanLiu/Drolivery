@@ -16,6 +16,7 @@ from random import randint
 touchRange = ([], [])
 score = 0
 scoreText = ""
+scoreScreen = 0
 
 # Static variables
 DRONE_SIZE = 48
@@ -59,9 +60,13 @@ def updateDisplay(state):
 DOCUMENT
 """
 def updateState(state):
-    global score
-    score += 1
-    return((state[0] + state[1], state[1], state[2] + state[3], state[3]))
+    if (scoreScreen == 0):
+        global score
+        score += 1
+        return ((state[0] + state[1], state[1], state[2] + state[3], state[3]))
+    else:
+        # TODO - show scoreScreen
+        return None
 
 ################################################################
 
@@ -69,12 +74,16 @@ def updateState(state):
 DOCUMENT
 """
 def endState(state):
-    # TODO - if end(state) returns true, change the screen to the score record screen
-    if (end(state)):
-        # TODO - create a boolean variable to control the state of the game
-        None
-    return (end(state))
+    if (end(state) and scoreScreen == 0):
+        global scoreScreen
+        scoreScreen = 1
+        return False
 
+    # Ends the game
+    if (scoreScreen == 2):
+        return True
+
+    return False
 
 def end(state):
     return touching(state) or state[0] > (WIDTH - DRONE_SIZE) or state[2] > (HEIGHT - DRONE_SIZE) or state[0] < 0 or state[2] < 0
@@ -112,8 +121,11 @@ def handleEvent(state, event):
     if (event.type == pg.MOUSEBUTTONDOWN):
         newState = [randomSpeed(), randomSpeed()]
         return((state[0], newState[0], state[2], newState[1]))
-    else:
-        return(state)
+    if (event.type == pg.K_SPACE and scoreScreen == 1):
+        global scoreScreen
+        scoreScreen = 2
+
+    return(state)
 
 
 """
