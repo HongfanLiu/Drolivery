@@ -133,7 +133,7 @@ def handleEvent(state, event):
         return(state)
 
 def randomSpeed():
-    r = randint(-7,7)
+    r = randint(-4,4)
     if (r == 0):
         r = randomSpeed()
 
@@ -145,7 +145,7 @@ def randomAxys(min, max):
 
 # The cat starts at the left, moving right
 #initState = (80, 1, 80, 1)
-initState = (0, 3, randomAxys(0, (height-1)), 2)
+initState = (0, 3, randomAxys(0, (height-350)), 2)
 #deliveryInitState = (100, 100)
 deliveryInitState = (randomAxys(984, 1010), randomAxys(17, 682))
 
