@@ -44,15 +44,13 @@ DOCUMENT
 """
 def updateDisplay(state):
     dw.fill(dw.white)
-    dw.draw(droneImage, (state[0], state[2]))
-    dw.draw(deliveryImage, (deliveryInitState[0], deliveryInitState[1]))
-
-     # render text
     global scoreText
-    scoreText = font.render("Score: " + str(score), 1, (0, 0, 0))
 
-
-    dw.draw(scoreText, (WIDTH / 2, 5))
+    if (scoreScreen == 0):
+        dw.draw(droneImage, (state[0], state[2]))
+        dw.draw(deliveryImage, (deliveryInitState[0], deliveryInitState[1]))
+        scoreText = font.render("Score: " + str(score), 1, (0, 0, 0))
+        dw.draw(scoreText, (WIDTH / 2, 5))
 
 ################################################################
 
