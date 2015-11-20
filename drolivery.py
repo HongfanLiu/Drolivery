@@ -4,19 +4,28 @@ import pygame as pg
 from random import randint
 
 ################################################################
+'''
+Don't you hate when you have to go all the way to the mail to get your package?
+Or even when you have to wait for it to come by mail, and keep getting those annoying texts from the ups guy
+saying that is close, but isn`t really...
+The game objective is to get the drone to get the package, but is not that easy. The drone starts with an
+random speed and each click you make causes the drone to radomly change the speed and the drone's trajectory.
 
-# DESCRIPTION
-# OF
-# THE
-# GAME
 
+HOW TO PLAY:
+1 - CLICK ON THE SCEEN TO RAMDOMLY CHANGE THE DRONE'S SPEED AND TRAJECTORY
+2 - IF YOU TOUCH THE BORDERS OF THE WINDOW, YOU LOSE
+3 - WHEN THE DRONE TOUCHES THE PACKAGE YOU WIN!!
+4 - HAVE FUN !!
+'''
 ################################################################
 
 # Global variables
 touchRange = ([], [])
 score = 0
 scoreText = ""
-scoreScreen = 0
+# 0 - The game is being played, 1 = The player lost, 2 = The player won
+gameState = 0
 
 # Static variables
 DRONE_SIZE = 48
@@ -25,9 +34,7 @@ WIDTH = 1024
 HEIGHT = 700
 
 # Initialize world
-# TODO - instead of creating a new window for the scores, maybe just erase everything and change the title
 name = "Drolivery - Fast & Accurate Drone Delivery"
-
 rw.newDisplay(WIDTH, HEIGHT, name)
 
 # Initialize font -> must be called after pygame.init() to avoid 'Font not Initialized' error
@@ -40,57 +47,63 @@ droneImage = dw.loadImage("drone.png")
 deliveryImage = dw.loadImage("delivery.png")
 
 """
-DOCUMENT
+Update the display accordingly with the game state
 """
 def updateDisplay(state):
     dw.fill(dw.white)
     global scoreText
+    global name
 
-    if (scoreScreen == 0):
+    if (gameState == 0):
         dw.draw(droneImage, (state[0], state[2]))
         dw.draw(deliveryImage, (deliveryInitState[0], deliveryInitState[1]))
         scoreText = font.render("Score: " + str(score), 1, (0, 0, 0))
         dw.draw(scoreText, (WIDTH / 2, 5))
     else:
-        name = "Score Window"
-        if (scoreScreen == 1):
+        name = "Score"
+        if (gameState == 1):
+            winLose = font.render("You LOST!",1,(0,0,0))
             scorePrint = font.render("Your score was: " + str(score),1,(0,0,0))
         else:
-            scorePrint = font.render("Your score was: " + str(10000-score),1,(0,0,0))  
-        dw.draw(scorePrint, ((WIDTH / 2)-100,HEIGHT/2))
+            winLose = font.render("You WON!",1,(0,0,0))
+            scorePrint = font.render("Your score was: " + str(10000 - score),1,(0,0,0))
+
+        restart = font.render("Press [Space Bar] to restart...",1,(0,0,0))
+
+        dw.draw(scorePrint, ((WIDTH / 2) - 100, HEIGHT/2))
+        dw.draw(winLose, ((WIDTH / 2) - 50, (HEIGHT / 2) - 80))
+        dw.draw(restart, ((WIDTH / 2) - 150, (HEIGHT / 2) + 80))
 
 
 ################################################################
 
 """
-DOCUMENT
+Update the state of the game
 """
 def updateState(state):
-    if (scoreScreen == 0):
+    if (gameState == 0):
         global score
         score += 1
-        return ((state[0] + state[1], state[1], state[2] + state[3], state[3]))
-    return (0,0,0,0)
+        return [state[0] + state[1], state[1], state[2] + state[3], state[3]]
+    return [0,0,0,0]
 
 ################################################################
 
 """
-DOCUMENT
+Checks wether or not the game ended, and updates the game state
 """
 def endState(state):
-    global scoreScreen
-    if (end(state) and scoreScreen == 0):
-        scoreScreen = 1
+    global gameState
+    if (end(state) and gameState == 0):
+        gameState = 1
     elif (touching(state)):
-        scoreScreen = 2
+        gameState = 2
         return False
 
-    # Ends the game
-    if (scoreScreen == 2):
-        return True
-
     return False
-
+"""
+Checks if the drone touched the window borders.
+"""
 def end(state):
     return state[0] > (WIDTH - DRONE_SIZE) or state[2] > (HEIGHT - DRONE_SIZE) or state[0] < 0 or state[2] < 0
 
@@ -117,22 +130,39 @@ def droneBoundaries(axis):
 
     return b
 
-################################################################
-
 """
-DOCUMENT
+Handles the events and restart the game when needed
 """
 def handleEvent(state, event):
-    # TODO - catch the event handler to get the spacebar or some other key and set the state of the game var to true, the user can only change it when the previous game is ended
+    global gameState
     if (event.type == pg.MOUSEBUTTONDOWN):
         newState = [randomSpeed(), randomSpeed()]
         return((state[0], newState[0], state[2], newState[1]))
-    if (event.type == pg.K_SPACE and scoreScreen == 0):
-        global scoreScreen
-        scoreScreen = 2
+    if (event.type == pg.KEYDOWN and gameState != 0):
+        if (event.key == pg.K_SPACE):
+            restart(state)
 
-    return(state)
+    return state
+"""
+Restarts the game and his variables
+"""
+def restart(state):
+    global deliveryInitState
+    global gameState
+    global score
+    global touchRange
 
+    state[0] = 0
+    state[1] = 3
+    state[2] = randomAxys(0, (HEIGHT - 350))
+    state[3] = 2
+
+    score = 0
+    deliveryInitState = (randomAxys(984, 1010), randomAxys(17, 682))
+    gameState = 0
+
+    touchRange = ([], [])
+    getDeliveryBoundaries()
 
 """
 Generates a random speed value different from 0
@@ -152,10 +182,8 @@ def randomAxys(min, max):
 ################################################################
 
 # The drone starts in a random position between the top and halfway of the screen
-#initState = (80, 1, 80, 1)
 initState = (0, 3, randomAxys(0, (HEIGHT - 350)), 2)
 # The delivery box starts in a random position near the end of the screen to the right side
-#deliveryInitState = (100, 100)
 deliveryInitState = (randomAxys(984, 1010), randomAxys(17, 682))
 
 """
