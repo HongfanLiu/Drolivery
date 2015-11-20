@@ -53,7 +53,10 @@ def updateDisplay(state):
         dw.draw(scoreText, (WIDTH / 2, 5))
     else:
         name = "Score Window"
-        scorePrint = font.render("Your score was: " + str(score),1,(0,0,0))
+        if (scoreScreen == 1):
+            scorePrint = font.render("Your score was: " + str(score),1,(0,0,0))
+        else:
+            scorePrint = font.render("Your score was: " + str(10000-score),1,(0,0,0))  
         dw.draw(scorePrint, ((WIDTH / 2)-100,HEIGHT/2))
 
 
@@ -75,9 +78,11 @@ def updateState(state):
 DOCUMENT
 """
 def endState(state):
+    global scoreScreen
     if (end(state) and scoreScreen == 0):
-        global scoreScreen
         scoreScreen = 1
+    elif (touching(state)):
+        scoreScreen = 2
         return False
 
     # Ends the game
@@ -87,7 +92,7 @@ def endState(state):
     return False
 
 def end(state):
-    return touching(state) or state[0] > (WIDTH - DRONE_SIZE) or state[2] > (HEIGHT - DRONE_SIZE) or state[0] < 0 or state[2] < 0
+    return state[0] > (WIDTH - DRONE_SIZE) or state[2] > (HEIGHT - DRONE_SIZE) or state[0] < 0 or state[2] < 0
 
 
 """
@@ -165,7 +170,6 @@ def getDeliveryBoundaries():
 # Filling the touchRange list
 getDeliveryBoundaries()
 
-print(touchRange)
 # Run the simulation no faster than 60 frames per second
 frameRate = 60
 
