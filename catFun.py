@@ -51,6 +51,11 @@ def updateDisplay(state):
         dw.draw(deliveryImage, (deliveryInitState[0], deliveryInitState[1]))
         scoreText = font.render("Score: " + str(score), 1, (0, 0, 0))
         dw.draw(scoreText, (WIDTH / 2, 5))
+    else:
+        name = "Score Window"
+        scorePrint = font.render("Your score was: " + str(score),1,(0,0,0))
+        dw.draw(scorePrint, ((WIDTH / 2)-100,HEIGHT/2))
+
 
 ################################################################
 
@@ -62,9 +67,7 @@ def updateState(state):
         global score
         score += 1
         return ((state[0] + state[1], state[1], state[2] + state[3], state[3]))
-    else:
-        # TODO - show scoreScreen
-        return None
+    return (0,0,0,0)
 
 ################################################################
 
@@ -119,7 +122,7 @@ def handleEvent(state, event):
     if (event.type == pg.MOUSEBUTTONDOWN):
         newState = [randomSpeed(), randomSpeed()]
         return((state[0], newState[0], state[2], newState[1]))
-    if (event.type == pg.K_SPACE and scoreScreen == 1):
+    if (event.type == pg.K_SPACE and scoreScreen == 0):
         global scoreScreen
         scoreScreen = 2
 
