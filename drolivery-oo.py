@@ -55,7 +55,7 @@ def updateDisplay(state):
     global name
 
     if (gameState == 0):
-        dw.draw(droneImage, (state[0], state[2]))
+        dw.draw(droneImage, (state.x_axis, state.y_axis))
         dw.draw(deliveryImage, (deliveryInitState[0], deliveryInitState[1]))
         scoreText = font.render("Score: " + str(score), 1, (0, 0, 0))
         dw.draw(scoreText, (WIDTH / 2, 5))
@@ -84,8 +84,10 @@ def updateState(state):
     if (gameState == 0):
         global score
         score += 1
-        return [state[0] + state[1], state[1], state[2] + state[3], state[3]]
-    return [0,0,0,0]
+        state.x_axis = state.move(state.x_axis, state.x_speed)
+        state.y_axis = state.move(state.y_axis, state.y_speed)
+        return state
+    return State(0,0,0,0)
 
 ################################################################
 
@@ -105,16 +107,16 @@ def endState(state):
 Checks if the drone touched the window borders.
 """
 def end(state):
-    return state[0] > (WIDTH - DRONE_SIZE) or state[2] > (HEIGHT - DRONE_SIZE) or state[0] < 0 or state[2] < 0
+    return state.x_axis > (WIDTH - DRONE_SIZE) or state.y_axis > (HEIGHT - DRONE_SIZE) or state.x_axis < 0 or state.y_axis < 0
 
 
 """
 Checks whether or not any part of the drone touched any part of the delivery box
 """
 def touching(state):
-    for i in droneBoundaries(state[0]):
+    for i in droneBoundaries(state.x_axis):
         if (i in touchRange[0]):
-            for j in droneBoundaries(state[2]):
+            for j in droneBoundaries(state.y_axis):
                 if (j in touchRange[1]):
                     return True
 
@@ -137,7 +139,7 @@ def handleEvent(state, event):
     global gameState
     if (event.type == pg.MOUSEBUTTONDOWN):
         newState = [randomSpeed(), randomSpeed()]
-        return((state[0], newState[0], state[2], newState[1]))
+        return((state.x_axis, newState[0], state.y_axis, newState[1]))
     if (event.type == pg.KEYDOWN and gameState != 0):
         if (event.key == pg.K_SPACE):
             restart(state)
@@ -152,11 +154,12 @@ def restart(state):
     global score
     global touchRange
 
-    state[0] = 0
+    '''state[0] = 0
     state[1] = 3
     state[2] = randomAxys(0, (HEIGHT - 350))
     state[3] = 2
-
+'''
+    state = State(randomAxys(0,(HEIGHT - 350)))
     score = 0
     deliveryInitState = (randomAxys(984, 1010), randomAxys(17, 682))
     gameState = 0
@@ -183,24 +186,35 @@ def randomAxys(min, max):
 
 
 class State:
-    x_axis = 0
-    x_speed = 3
-    y_speed = 2
+    def setXAxis(self, val):
+        self.x_axis = val
+
+    def setXSpeed(self, val):
+        self.x_speed = val
 
     def setYAxis(self, val):
         self.y_axis = val
 
-    def __init__(self, val):
-        self.setYAxis(val)
+    def setYSpeed(self, val):
+        self.y_speed = val
+
+    def move(x,y):
+        return x + y
+
+    def __init__(self, xaxis, yaxis, xspeed, yspeed):
+        self.setYAxis(yaxis)
+        self.setXAxis(xaxis)
+        self.setXSpeed(xspeed)
+        self.setYSpeed(yspeed)
 
 
-initState = State(randomAxys(0, (HEIGHT - 350)))
+initState = State(0,randomAxys(0, (HEIGHT - 350)),3,2)
 
 # The drone starts in a random position between the top and halfway of the screen
 #initState = (x-axis: 0, x-speed: 3, y-axis: randomAxys(0, (HEIGHT - 350)), y-speed: 2)
 
 # The delivery box starts in a random position near the end of the screen to the right side
-#deliveryInitState = (x-axis: randomAxys(984, 1010), y-axis: randomAxys(17, 682))
+deliveryInitState = (randomAxys(984, 1010), randomAxys(17, 682))
 
 """
 Fills the touchRange list with the delivery box boundaries
