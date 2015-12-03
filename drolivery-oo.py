@@ -56,7 +56,7 @@ def updateDisplay(state):
 
     if (gameState == 0):
         dw.draw(droneImage, (state.x_axis, state.y_axis))
-        dw.draw(deliveryImage, (deliveryInitState[0], deliveryInitState[1]))
+        dw.draw(deliveryImage, (deliveryInitState.x_axis, deliveryInitState.y_axis))
         scoreText = font.render("Score: " + str(score), 1, (0, 0, 0))
         dw.draw(scoreText, (WIDTH / 2, 5))
     else:
@@ -163,7 +163,7 @@ def restart(state):
     state.setYSpeed(2)
 
     score = 0
-    deliveryInitState = (randomAxys(984, 1010), randomAxys(17, 682))
+    deliveryInitState = Delivery(randomAxys(984, 1010), randomAxys(17, 682))
     gameState = 0
 
     touchRange = ([], [])
@@ -216,15 +216,29 @@ initState = State(0,randomAxys(0, (HEIGHT - 350)),3,2)
 #initState = (x-axis: 0, x-speed: 3, y-axis: randomAxys(0, (HEIGHT - 350)), y-speed: 2)
 
 # The delivery box starts in a random position near the end of the screen to the right side
-deliveryInitState = (randomAxys(984, 1010), randomAxys(17, 682))
+
+
+
+class Delivery:
+    def setXAxis(self, val):
+        self.x_axis = val
+
+    def setYAxis(self, val):
+        self.y_axis = val
+
+    def __init__(self, xaxis, yaxis):
+        self.setYAxis(yaxis)
+        self.setXAxis(xaxis)
+
+deliveryInitState = Delivery(randomAxys(984,1010), randomAxys(17,682))
 
 """
 Fills the touchRange list with the delivery box boundaries
 """
 def getDeliveryBoundaries():
-    for i in range(deliveryInitState[0], deliveryInitState[0] + DELIVERY_SIZE):
+    for i in range(deliveryInitState.x_axis, deliveryInitState.x_axis + DELIVERY_SIZE):
         touchRange[0].append(i)
-    for i in range(deliveryInitState[1], deliveryInitState[1] + DELIVERY_SIZE):
+    for i in range(deliveryInitState.y_axis, deliveryInitState.y_axis + DELIVERY_SIZE):
         touchRange[1].append(i)
 
 # Filling the touchRange list
