@@ -84,8 +84,8 @@ def updateState(state):
     if (gameState == 0):
         global score
         score += 1
-        state.x_axis = state.move(state.x_axis, state.x_speed)
-        state.y_axis = state.move(state.y_axis, state.y_speed)
+        state.setXAxis(state.move(state.x_axis, state.x_speed))
+        state.setYAxis(state.move(state.y_axis, state.y_speed))
         return state
     return State(0,0,0,0)
 
@@ -139,7 +139,10 @@ def handleEvent(state, event):
     global gameState
     if (event.type == pg.MOUSEBUTTONDOWN):
         newState = [randomSpeed(), randomSpeed()]
-        return((state.x_axis, newState[0], state.y_axis, newState[1]))
+        state.setXSpeed(newState[0])
+        state.setYSpeed(newState[1])
+        return state
+
     if (event.type == pg.KEYDOWN and gameState != 0):
         if (event.key == pg.K_SPACE):
             restart(state)
@@ -154,12 +157,11 @@ def restart(state):
     global score
     global touchRange
 
-    '''state[0] = 0
-    state[1] = 3
-    state[2] = randomAxys(0, (HEIGHT - 350))
-    state[3] = 2
-'''
-    state = State(randomAxys(0,(HEIGHT - 350)))
+    state.setXAxis(0)
+    state.setXSpeed(3)
+    state.setYAxis(randomAxys(0, (HEIGHT - 350)))
+    state.setYSpeed(2)
+
     score = 0
     deliveryInitState = (randomAxys(984, 1010), randomAxys(17, 682))
     gameState = 0
@@ -198,7 +200,7 @@ class State:
     def setYSpeed(self, val):
         self.y_speed = val
 
-    def move(x,y):
+    def move(self, x, y):
         return x + y
 
     def __init__(self, xaxis, yaxis, xspeed, yspeed):
